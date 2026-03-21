@@ -1,0 +1,53 @@
+.container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.title {
+  text-align: center;
+}
+
+.search-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.search-input {
+  padding: 10px;
+  width: 80%;
+  max-width: 300px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.subtitle {
+  margin-top: 30px;
+}
+
+.school-card {
+  padding: 12px;
+  margin-top: 10px;
+  background-color: #f2f2f2;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.no-result {
+  color: gray;
+  margin-top: 10px;
+}
+
+.button-container {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.add-button {
+  padding: 12px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
