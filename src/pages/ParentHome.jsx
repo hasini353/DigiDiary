@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
 import '../App.css';
 
-const HomePage = () => {
+const ParentHome = () => {
   const [search, setSearch] = useState("");
 
   const schools = [
@@ -21,7 +22,7 @@ const HomePage = () => {
     <div className="container">
       <h1 className="title">DigiDiary</h1>
 
-      {/* Search Bar */}
+      {/* Search Bar */   }
       <div className="search-container">
         <input
           type="text"
@@ -32,7 +33,7 @@ const HomePage = () => {
         />
       </div>
 
-      {/* Schools List */}
+      {/* Schools List */ }
       <h2 className="subtitle">Registered Schools</h2>
 
       {filteredSchools.length > 0 ? (
@@ -45,7 +46,7 @@ const HomePage = () => {
         <p className="no-result">No school found</p>
       )}
 
-      {/* Add School */}
+      {/* Add School */ }
       <div className="button-container">
         <button className="add-button">Add New School</button>
       </div>
@@ -53,4 +54,4 @@ const HomePage = () => {
   );
 }
 
-export default HomePage;
+export default ParentHome; 
