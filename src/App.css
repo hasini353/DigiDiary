@@ -42,6 +42,11 @@
   margin-top: 40px;
 }
 
+.add-.button-container {
+  text-align: center;
+  margin-top: 40px;
+}
+
 .add-button {
   padding: 12px 20px;
   font-size: 16px;
@@ -50,5 +55,39 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.form-container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  width: 150px;
+  min-width: 150px;
+  margin-right: 12px;
+  font-weight: 600;
+  color: #f0e8e8;
+}
+
+.form-input,
+.form-group select,
+textarea {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
 }
 
