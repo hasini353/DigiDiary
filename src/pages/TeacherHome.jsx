@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
+import { db } from '../firebase';
+import { ref, push } from "firebase/database";
+
 
 const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
   const [showLoginForm, setShowLoginForm] = useState(!session);
@@ -15,32 +18,9 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
   const [homeworkText, setHomeworkText] = useState("");
   const [uploadMessage, setUploadMessage] = useState("");
 
-  // Sample data with school-specific teacher credentials
-  const schoolsData = {
-    "Sri Chaitanya School": {
-      phone: "+91-40-1234-5678",
-      teachers: [
-        { id: 1, name: "Mr. Sharma", email: "sharma@chaitanya.edu", phone: "9876543210", password: "teacher123" },
-        { id: 2, name: "Ms. Priya", email: "priya@chaitanya.edu", phone: "9876543211", password: "teacher123" }
-      ]
-    },
-    "Lotus High School": {
-      phone: "+91-20-9876-5432",
-      teachers: [
-        { id: 1, name: "Dr. Patel", email: "patel@lotus.edu", phone: "9765432101", password: "teacher123" },
-        { id: 2, name: "Mrs. Rani", email: "rani@lotus.edu", phone: "9765432102", password: "teacher123" }
-      ]
-    },
-    "Delhi Public School": {
-      phone: "+91-11-2345-6789",
-      teachers: [
-        { id: 1, name: "Mr. Kumar", email: "kumar@dps.edu", phone: "9654321012", password: "teacher123" },
-        { id: 2, name: "Ms. Sharma", email: "sharmaz@dps.edu", phone: "9654321013", password: "teacher123" }
-      ]
-    }
-  };
+  
 
-  const classes = ["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"];
+  const classes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   const sections = ["A", "B", "C", "D", "E"];
   const subjects = ["Mathematics", "English", "Physics", "Chemistry", "Biology", "Social Studies", "Hindi" ,"Telugu", "Computer"];
 
@@ -50,60 +30,76 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
     }
   }, [session]);
 
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    if (!schoolEmail || !password || !phoneNumber) {
-      setUploadMessage("Please enter email, phone number, and password");
-      return;
-    }
+ const handleLoginSubmit = async (e) => {
+  e.preventDefault();
 
-    let matchedTeacher = null;
-    let matchedSchoolName = null;
+  const snapshot = await get(ref(db, "teachers"));
 
-    Object.entries(schoolsData).forEach(([schoolName, schoolData]) => {
-      const teacher = schoolData.teachers.find(
-        (t) => t.email === schoolEmail && t.password === password && t.phone === phoneNumber
-      );
-      if (teacher) {
-        matchedTeacher = teacher;
-        matchedSchoolName = schoolName;
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+
+    let found = null;
+
+    Object.values(data).forEach(teacher => {
+      if (
+        teacher.email === schoolEmail &&
+        teacher.phone === phoneNumber &&
+        teacher.password === password
+      ) {
+        found = teacher;
       }
     });
 
-    if (matchedTeacher && matchedSchoolName) {
-      const sessionData = {
-        schoolName: matchedSchoolName,
-        schoolPhone: schoolsData[matchedSchoolName].phone,
-        teacherName: matchedTeacher.name,
-        teacherEmail: matchedTeacher.email,
-        teacherPhone: matchedTeacher.phone
-      };
-      onLogin(sessionData);
+    if (found) {
+      onLogin({
+        schoolName: found.school,
+        schoolPhone: "N/A",
+        teacherName: found.name,
+        teacherEmail: found.email,
+        teacherPhone: found.phone
+      });
       setShowLoginForm(false);
       setUploadMessage("");
     } else {
-      setUploadMessage("Invalid email or password");
+      setUploadMessage("Invalid credentials");
     }
-  };
+  }
+};
 
   const handleFileChange = (e) => {
     setHomeworkFile(e.target.files[0]);
   };
 
   const handleHomeworkUpload = (e) => {
-    e.preventDefault();
-    if (!selectedClass || !selectedSection || !selectedSubject || !selectedDate) {
-      setUploadMessage("Please select all fields (Class, Section, Subject, Date)");
-      return;
-    }
-    if (!homeworkFile && !homeworkText) {
-      setUploadMessage("Please upload a file or enter homework text");
-      return;
-    }
-    setUploadMessage("Homework uploaded successfully for " + selectedDate);
-    setHomeworkFile(null);
-    setHomeworkText("");
-  };
+  e.preventDefault();
+
+  if (!selectedClass || !selectedSection || !selectedSubject || !selectedDate) {
+    setUploadMessage("Please select all fields (Class, Section, Subject, Date)");
+    return;
+  }
+
+  if (!homeworkFile && !homeworkText) {
+    setUploadMessage("Please upload a file or enter homework text");
+    return;
+  }
+
+  // 🔥 STORE IN FIREBASE
+  push(ref(db, `homework/${session.schoolName}/${selectedClass}/${selectedSection}`), {
+    class: selectedClass,
+    section: selectedSection,
+    subject: selectedSubject,
+    date: selectedDate,
+    text: homeworkText || "",
+    fileName: homeworkFile ? homeworkFile.name : "",
+    teacher: session.teacherName,
+    createdAt: new Date().toISOString()
+  });
+
+  setUploadMessage("Homework uploaded successfully!");
+  setHomeworkFile(null);
+  setHomeworkText("");
+};
+
 
   const handleLogoutClick = () => {
     setShowLoginForm(true);
@@ -182,7 +178,7 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
             <h1 className="title" style={{ marginBottom: '8px' ,color: 'black'}}>Teacher Dashboard</h1><br/>
           </div>
           <p style={{ fontSize: '14px', color: '#444' }}>
-            School: <strong>{session.schoolName}</strong> | Phone: <strong>{session.schoolPhone}</strong>
+            School: <strong>{session.schoolName}</strong> 
           </p>
           <p style={{ fontSize: '14px', color: '#444' }}>
             Teacher: <strong>{session.teacherName}</strong> | Email: <strong>{session.teacherEmail}</strong>
@@ -255,16 +251,6 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Upload Homework File:</label>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="form-input"
-            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-          />
-          {homeworkFile && <p style={{ color: 'green' }}>File selected: {homeworkFile.name}</p>}
-        </div><br/>
 
         <div className="form-group">
           <label>Enter Homework Text:</label>

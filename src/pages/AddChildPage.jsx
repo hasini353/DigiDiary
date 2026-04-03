@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import '../App.css';
+import { db } from '../firebase';
+import { ref, onValue ,set} from "firebase/database";
 
 const AddChildPage = ({ session, onLogin, setPage }) => {
   const [childName, setChildName] = useState('');
@@ -8,31 +10,65 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
   const [childSection, setChildSection] = useState('');
   const [message, setMessage] = useState('');
 
-  const schools = ["Sri Chaitanya School", "Lotus High School", "Delhi Public School"];
+  const [schools, setSchools] = useState([]);
   const classes = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
   const sections = ["A", "B", "C", "D"];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!childName || !schoolName || !childClass || !childSection) {
-      setMessage('Please fill all fields');
-      return;
+  useEffect(() => {
+  const teachersRef = ref(db, "teachers");
+
+  onValue(teachersRef, (snapshot) => {
+    const data = snapshot.val();
+
+    let schoolList = [];
+
+    if (data) {
+      Object.values(data).forEach(teacher => {
+        if (teacher.school && !schoolList.includes(teacher.school)) {
+          schoolList.push(teacher.school);
+        }
+      });
     }
 
-    const newChild = `${childName} - Class ${childClass}${childSection} - ${schoolName}`;
-    const updatedStudents = [...session.students, newChild];
+    setSchools(schoolList);
+  });
+}, []);
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!childName || !schoolName || !childClass || !childSection) {
+    setMessage('Please fill all fields');
+    return;
+  }
+
+  const newChild = `${childName} - Class ${childClass}${childSection} - ${schoolName}`;
+
+  try {
+    // 🔥 Save to Firebase using parent phone as ID
+    await set(ref(db, `parents/${session.parentPhone}/students`), [
+      ...(session.students || []),
+      newChild
+    ]);
 
     const updatedSession = {
       ...session,
-      students: updatedStudents
+      students: [...(session.students || []), newChild]
     };
 
     onLogin(updatedSession);
+
     setMessage('Child added successfully!');
+
     setTimeout(() => {
       setPage('parent');
     }, 2000);
-  };
+
+  } catch (error) {
+    console.error(error);
+    setMessage("Error saving child");
+  }
+};
 
   return (
     <div className="container">
@@ -53,18 +89,23 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
         <div className="form-group">
           <label>School Name:</label>
           <select
-            value={schoolName}
-            onChange={(e) => setSchoolName(e.target.value)}
-            className="form-input"
-            required
-          >
-            <option value="">-- Select School --</option>
-            {schools.map((school) => (
-              <option key={school} value={school}>
-                {school}
-              </option>
-            ))}
-          </select>
+  value={schoolName}
+  onChange={(e) => setSchoolName(e.target.value)}
+  className="form-input"
+  required
+>
+  <option value="">-- Select School --</option>
+
+  {schools.length === 0 ? (
+    <option disabled>No schools available</option>
+  ) : (
+    schools.map((school) => (
+      <option key={school} value={school}>
+        {school}
+      </option>
+    ))
+  )}
+</select>
         </div>
 
         <div className="form-group">
