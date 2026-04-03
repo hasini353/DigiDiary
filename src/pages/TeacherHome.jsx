@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
 import { db } from '../firebase';
-import { ref, push } from "firebase/database";
+import { ref, push, get } from "firebase/database";
 
 
 const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
@@ -122,7 +122,7 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
     return (
       <div className="container">
         <div className="page-logo-wrapper">
-          <img src="/public/images/temp.png" alt="DigiDiary Logo" className="page-logo" />
+          <img src="/images/temp.png" alt='digi diary logo' className="page-logo" />
         </div>
         <h1 className="title">Teacher Login</h1>
         <form onSubmit={handleLoginSubmit} className="form-container">

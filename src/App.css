@@ -1,3 +1,10 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  background-color: #001f3f;
+}
+
 .app-logo-wrapper {
   position: fixed;
   top: 10px;
@@ -9,8 +16,10 @@
 .page-logo {
   height: 3rem;
   width: auto;
+  max-width: 100%;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  display: block;
 }
 
 .page-logo-wrapper {
@@ -18,10 +27,13 @@
   top: 10px;
   left: 10px;
   z-index: 1000;
+  max-width: 60px;
+  overflow: hidden;
 }
 
 .container {
   padding: 20px;
+  padding-top: 80px;
   font-family: Arial, sans-serif;
   background-color: #001f3f;
   color: #ffffff;

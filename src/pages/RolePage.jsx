@@ -4,9 +4,9 @@ import './RolePage.css'
 
 const RolePage = ({ setPage }) => {
   // Files placed in public/images are served from '/images/...'
-  const teacherImg = '/public/images/teach.jpeg'
-  const parentImg = '/public/images/parent.jpg'
-  const logoImg = '/public/images/temp.png' // Using temp.png as logo placeholder
+  const teacherImg = '/images/teach.jpeg'
+  const parentImg = '/images/parent.jpg'
+  const logoImg = '/images/temp.png' // Using temp.png as logo placeholder
 
   return (
     <div className="role-page">
