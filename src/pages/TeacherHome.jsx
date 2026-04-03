@@ -52,27 +52,37 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
 
   const handleLoginSubmit = (e) => {
     e.preventDefault();
-    if (!selectedSchool || !schoolEmail || !phoneNumber || !password) {
-      setUploadMessage("Please fill all fields");
+    if (!schoolEmail || !password || !phoneNumber) {
+      setUploadMessage("Please enter email, phone number, and password");
       return;
     }
 
-    const school = schoolsData[selectedSchool];
-    const teacher = school.teachers.find(t => t.email === schoolEmail && t.password === password);
+    let matchedTeacher = null;
+    let matchedSchoolName = null;
 
-    if (teacher) {
+    Object.entries(schoolsData).forEach(([schoolName, schoolData]) => {
+      const teacher = schoolData.teachers.find(
+        (t) => t.email === schoolEmail && t.password === password && t.phone === phoneNumber
+      );
+      if (teacher) {
+        matchedTeacher = teacher;
+        matchedSchoolName = schoolName;
+      }
+    });
+
+    if (matchedTeacher && matchedSchoolName) {
       const sessionData = {
-        schoolName: selectedSchool,
-        schoolPhone: school.phone,
-        teacherName: teacher.name,
-        teacherEmail: schoolEmail,
-        teacherPhone: phoneNumber
+        schoolName: matchedSchoolName,
+        schoolPhone: schoolsData[matchedSchoolName].phone,
+        teacherName: matchedTeacher.name,
+        teacherEmail: matchedTeacher.email,
+        teacherPhone: matchedTeacher.phone
       };
       onLogin(sessionData);
       setShowLoginForm(false);
       setUploadMessage("");
     } else {
-      setUploadMessage("Invalid credentials for selected school");
+      setUploadMessage("Invalid email or password");
     }
   };
 
@@ -115,25 +125,11 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
   if (showLoginForm || !session) {
     return (
       <div className="container">
+        <div className="page-logo-wrapper">
+          <img src="/public/images/temp.png" alt="DigiDiary Logo" className="page-logo" />
+        </div>
         <h1 className="title">Teacher Login</h1>
         <form onSubmit={handleLoginSubmit} className="form-container">
-          <div className="form-group">
-            <label>Select School:</label>
-            <select
-              value={selectedSchool}
-              onChange={(e) => setSelectedSchool(e.target.value)}
-              className="form-input"
-              required
-            >
-              <option value="">-- Select Your School --</option>
-              {Object.keys(schoolsData).map((school) => (
-                <option key={school} value={school}>
-                  {school}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className="form-group">
             <label>School Email:</label>
             <input
@@ -178,10 +174,13 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
   }
 
   return (
-    <div className="container">
-      <div className="header" style={{ backgroundColor: '#fafbfc', border: '1px solid #e8ebee', borderRadius: '8px', padding: '16px', marginBottom: '24px' }}>
+    <div className="container" style={{ paddingTop: '4rem' }}>
+      <div className="header" style={{ backgroundColor: '#fafbfc', border: '1px solid #e8ebee', borderRadius: '8px', padding: '16px', marginBottom: '24px', position: 'relative' }}>
+        <button onClick={handleLogoutClick} className="logout-btn" style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#666' }}>⏻</button>
         <div>
-          <h1 className="title" style={{ marginBottom: '8px' ,color: 'black'}}>Upload Homework</h1><br/>
+          <div className="title-container">
+            <h1 className="title" style={{ marginBottom: '8px' ,color: 'black'}}>Teacher Dashboard</h1><br/>
+          </div>
           <p style={{ fontSize: '14px', color: '#444' }}>
             School: <strong>{session.schoolName}</strong> | Phone: <strong>{session.schoolPhone}</strong>
           </p>
@@ -189,7 +188,6 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
             Teacher: <strong>{session.teacherName}</strong> | Email: <strong>{session.teacherEmail}</strong>
           </p>
         </div>
-        <button onClick={handleLogoutClick} className="role-btn" style={{ padding: '8px 16px', fontSize: '14px', height: 'fit-content' }}>Logout</button>
       </div>
 
       <form onSubmit={handleHomeworkUpload} className="form-container" style={{ marginTop: '32px' }}>
