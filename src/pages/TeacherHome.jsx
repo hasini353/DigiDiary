@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import '../App.css';
-import { db } from '../firebase';
-import { ref, push, get } from "firebase/database";
 
 
 const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
@@ -33,71 +31,62 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
  const handleLoginSubmit = async (e) => {
   e.preventDefault();
 
-  const snapshot = await get(ref(db, "teachers"));
+ onLogin({
+    schoolName: "Demo School",
+    teacherName: "Hasini",
+    teacherEmail: schoolEmail
+  });
 
-  if (snapshot.exists()) {
-    const data = snapshot.val();
-
-    let found = null;
-
-    Object.values(data).forEach(teacher => {
-      if (
-        teacher.email === schoolEmail &&
-        teacher.phone === phoneNumber &&
-        teacher.password === password
-      ) {
-        found = teacher;
-      }
-    });
-
-    if (found) {
-      onLogin({
-        schoolName: found.school,
-        schoolPhone: "N/A",
-        teacherName: found.name,
-        teacherEmail: found.email,
-        teacherPhone: found.phone
-      });
-      setShowLoginForm(false);
-      setUploadMessage("");
-    } else {
-      setUploadMessage("Invalid credentials");
-    }
-  }
+  setShowLoginForm(false);
 };
 
   const handleFileChange = (e) => {
     setHomeworkFile(e.target.files[0]);
   };
 
-  const handleHomeworkUpload = (e) => {
+  const handleHomeworkUpload = async (e) => {
   e.preventDefault();
 
   if (!selectedClass || !selectedSection || !selectedSubject || !selectedDate) {
-    setUploadMessage("Please select all fields (Class, Section, Subject, Date)");
+    setUploadMessage("Please select all fields");
     return;
   }
 
-  if (!homeworkFile && !homeworkText) {
-    setUploadMessage("Please upload a file or enter homework text");
+  if (!homeworkText) {
+    setUploadMessage("Please enter homework");
     return;
   }
 
-  // 🔥 STORE IN FIREBASE
-  push(ref(db, `homework/${session.schoolName}/${selectedClass}/${selectedSection}`), {
-    class: selectedClass,
-    section: selectedSection,
-    subject: selectedSubject,
-    date: selectedDate,
-    text: homeworkText || "",
-    fileName: homeworkFile ? homeworkFile.name : "",
-    teacher: session.teacherName,
-    createdAt: new Date().toISOString()
-  });
+  try {
+    const response = await fetch("http://localhost:5000/add-homework", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        class: selectedClass,
+        section: selectedSection,
+        subject: selectedSubject,
+        date: selectedDate,
+        text: homeworkText,
+        teacher: session.teacherName,
+        school: session.schoolName
+      })
+    });
 
-  setUploadMessage("Homework uploaded successfully!");
-  setHomeworkFile(null);
-  setHomeworkText("");
+    const data = await response.json();
+
+    if (response.ok) {
+      setUploadMessage("Homework uploaded successfully ✅");
+      setHomeworkText("");
+    } else {
+      setUploadMessage("Error uploading ❌");
+    }
+
+  } catch (error) {
+    console.error(error);
+    setUploadMessage("Server error ❌");
+  }
 };
 
 
@@ -120,12 +109,10 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
 
   if (showLoginForm || !session) {
     return (
-      <div className="container">
-        <div className="page-logo-wrapper">
-          <img src="/images/temp.png" alt='digi diary logo' className="page-logo" />
-        </div>
-        <h1 className="title">Teacher Login</h1>
-        <form onSubmit={handleLoginSubmit} className="form-container">
+      <div className="container auth-page">
+        <div className="auth-card">
+          <h1 className="title">Teacher Login</h1>
+          <form onSubmit={handleLoginSubmit} className="form-container">
           <div className="form-group">
             <label>School Email:</label>
             <input
@@ -165,6 +152,7 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
           <button type="submit" className="role-btn">Login</button>
           {uploadMessage && <p style={{ color: 'red', marginTop: '10px' }}>{uploadMessage}</p>}
         </form>
+        </div>
       </div>
     );
   }

@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import '../App.css';
-import { db } from '../firebase';
-import { ref, set } from "firebase/database";
 
 const RegisterPage = ({ role, onRegister, onCancel }) => {
   const [fullName, setFullName] = useState('');
@@ -13,7 +11,7 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
 
   const isTeacher = role === 'Teacher';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!fullName || !phoneNumber || !password || (isTeacher && (!schoolEmail || !schoolName))) {
@@ -21,87 +19,137 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
       return;
     }
 
-    // 🔥 SAVE IN FIREBASE
-    if (isTeacher) {
-      set(ref(db, `teachers/${phoneNumber}`), {
-        name: fullName,
-        email: schoolEmail,
-        phone: phoneNumber,
-        school: schoolName,
-        password: password
+    try {
+      // ✅ Choose API based on role
+      const url = isTeacher
+        ? "http://localhost:5000/register-teacher"
+        : "http://localhost:5000/register-parent";
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: fullName,
+          email: schoolEmail,
+          phone: phoneNumber,
+          school: schoolName, // only for teacher
+          password: password
+        })
       });
-    } else {
-      set(ref(db, `parents/${phoneNumber}`), {
-        name: fullName,
-        email: schoolEmail,
-        phone: phoneNumber,
-        password: password,
-        students: []
-      });
+
+      const data = await res.json();
+
+      if (data.success) {
+
+        const sessionData = isTeacher
+          ? {
+              schoolName,
+              teacherName: fullName,
+              teacherEmail: schoolEmail,
+              teacherPhone: phoneNumber
+            }
+          : {
+              parentName: fullName,
+              parentEmail: schoolEmail,
+              parentPhone: phoneNumber,
+              students: []
+            };
+
+        onRegister(sessionData);
+
+        setError("Registered successfully!");
+
+      } else {
+        setError(data.message || "Registration failed");
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError("Server error");
     }
-
-    const sessionData = {
-      ...(isTeacher
-        ? {
-            schoolName,
-            teacherName: fullName,
-            teacherEmail: schoolEmail,
-            teacherPhone: phoneNumber,
-          }
-        : {
-            parentName: fullName,
-            parentEmail: schoolEmail,
-            parentPhone: phoneNumber,
-            students: []
-          }),
-      password,
-    };
-
-    onRegister(sessionData);
-    setError("Registered successfully!");
   };
 
   return (
-    <div className="container" style={{ minHeight: '100vh', background: '#001f3f', color: '#fff', paddingTop: '20px' }}>
-      <h1 className="title">{role} Register</h1>
+    <div className="container auth-page">
+      <div className="auth-card">
+        <h1 className="title">{role} Register</h1>
 
-      <form onSubmit={handleSubmit} className="form-container" style={{ maxWidth: '500px', margin: '0 auto' }}>
-        
-        <div className="form-group">
+        <form onSubmit={handleSubmit} className="form-container">
+          <div className="form-group">
           <label>Full Name:</label>
-          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} className="form-input" required />
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="form-input"
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>{isTeacher ? 'School Email:' : 'Email (optional):'}</label>
-          <input type="email" value={schoolEmail} onChange={(e) => setSchoolEmail(e.target.value)} className="form-input" required={isTeacher} />
+          <input
+            type="email"
+            value={schoolEmail}
+            onChange={(e) => setSchoolEmail(e.target.value)}
+            className="form-input"
+            required={isTeacher}
+          />
         </div>
 
         {isTeacher && (
           <div className="form-group">
             <label>School Name:</label>
-            <input type="text" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} className="form-input" required />
+            <input
+              type="text"
+              value={schoolName}
+              onChange={(e) => setSchoolName(e.target.value)}
+              className="form-input"
+              required
+            />
           </div>
         )}
 
         <div className="form-group">
           <label>Phone Number:</label>
-          <input type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="form-input" required />
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            className="form-input"
+            required
+          />
         </div>
 
         <div className="form-group">
           <label>Password:</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="form-input" required />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="form-input"
+            required
+          />
         </div>
 
-        {error && <p style={{ color: error.includes("success") ? 'lightgreen' : 'red' }}>{error}</p>}
+        {error && (
+          <p style={{
+            color: error.includes("success") ? 'lightgreen' : 'red',
+            textAlign: 'center'
+          }}>
+            {error}
+          </p>
+        )}
 
-        <div style={{ textAlign: 'center' }}>
+        <div className="auth-actions">
           <button type="submit" className="add-button">Register</button>
           <button type="button" className="add-button" onClick={onCancel}>Cancel</button>
         </div>
 
       </form>
+      </div>
     </div>
   );
 };

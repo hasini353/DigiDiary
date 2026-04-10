@@ -124,9 +124,10 @@ const App = () => {
 
   return (
     <>
-      <div className="app-logo-wrapper">
-        <img src="/images/temp.png" alt="DigiDiary Logo" className="app-logo" />
-      </div>
+      <div className="app-header">
+  <img src="/images/temp.png" alt="logo" className="app-logo" />
+  <h2 className="app-title">DigiDiary</h2>
+</div>
       <RolePage setPage={setPage} />
     </>
   );
