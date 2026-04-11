@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import RolePage from "./pages/RolePage";
 import ParentHome from './pages/ParentHome';
 import TeacherHome from './pages/TeacherHome';
@@ -7,29 +7,14 @@ import AddChildPage from './pages/AddChildPage';
 
 const App = () => {
   const [page, setPage] = useState("role");
-  const [teacherSession, setTeacherSession] = useState(null);
-  const [parentSession, setParentSession] = useState(null);
-
-  // Load sessions from localStorage on mount
-  useEffect(() => {
-    const savedTeacherSession = localStorage.getItem('teacherSession');
-    const savedParentSession = localStorage.getItem('parentSession');
-    
-    if (savedTeacherSession) {
-      setTeacherSession(JSON.parse(savedTeacherSession));
-    }
-    if (savedParentSession) {
-      setParentSession(JSON.parse(savedParentSession));
-    }
-  }, []);
-
-  const handleGoToTeacher = () => {
-    setPage("teacher");
-  };
-
-  const handleGoToParent = () => {
-    setPage("parent");
-  };
+  const [teacherSession, setTeacherSession] = useState(() => {
+    const saved = localStorage.getItem('teacherSession');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [parentSession, setParentSession] = useState(() => {
+    const saved = localStorage.getItem('parentSession');
+    return saved ? JSON.parse(saved) : null;
+  });
 
   const handleTeacherLogout = () => {
     setTeacherSession(null);

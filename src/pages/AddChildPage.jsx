@@ -15,7 +15,8 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
 
   // ✅ Fetch schools from backend
   useEffect(() => {
-    fetch("http://localhost:5000/get-schools")
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    fetch(`${API_BASE}/get-schools`)
       .then(res => res.json())
       .then(data => {
         setSchools(data);
@@ -35,7 +36,8 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
     const newChild = `${childName} - Class ${childClass}${childSection} - ${schoolName}`;
 
     try {
-      const res = await fetch("http://localhost:5000/add-child", {
+      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await fetch(`${API_BASE}/add-child`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -74,7 +76,9 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
 
   return (
     <div className="container" style={{ minHeight: '100vh' }}>
-      <h1 className="title">Add New Child</h1>
+      <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <h1 className="title" style={{ color: 'white', marginBottom: '30px' }}>Add New Child</h1>
+      </div>
 
       <form onSubmit={handleSubmit} className="form-container" style={{ maxWidth: '500px', margin: '0 auto' }}>
 

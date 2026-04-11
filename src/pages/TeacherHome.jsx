@@ -3,18 +3,13 @@ import '../App.css';
 
 
 const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
-  const [showLoginForm, setShowLoginForm] = useState(!session);
-  const [selectedSchool, setSelectedSchool] = useState("");
-  const [schoolEmail, setSchoolEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
-  const [homeworkFile, setHomeworkFile] = useState(null);
   const [homeworkText, setHomeworkText] = useState("");
   const [uploadMessage, setUploadMessage] = useState("");
+  const [showLoginForm, setShowLoginForm] = useState(!session);
 
   
 
@@ -31,7 +26,7 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
  const handleLoginSubmit = async (e) => {
   e.preventDefault();
 
- onLogin({
+  onLogin({
     schoolName: "Demo School",
     teacherName: "Hasini",
     teacherEmail: schoolEmail
@@ -39,10 +34,6 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
 
   setShowLoginForm(false);
 };
-
-  const handleFileChange = (e) => {
-    setHomeworkFile(e.target.files[0]);
-  };
 
   const handleHomeworkUpload = async (e) => {
   e.preventDefault();
@@ -58,7 +49,8 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
   }
 
   try {
-    const response = await fetch("http://localhost:5000/add-homework", {
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const response = await fetch(`${API_BASE}/add-homework`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -149,7 +141,10 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
             />
           </div>
 
-          <button type="submit" className="role-btn">Login</button>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
+            <button type="submit" className="role-btn" style={{ flex: 1, maxWidth: '150px' }}>Login</button>
+            <button type="button" onClick={() => setPage('role')} className="role-btn" style={{ flex: 1, maxWidth: '150px' }}>Cancel</button>
+          </div>
           {uploadMessage && <p style={{ color: 'red', marginTop: '10px' }}>{uploadMessage}</p>}
         </form>
         </div>

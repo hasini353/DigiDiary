@@ -20,7 +20,8 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
   useEffect(() => {
     if (!session) return;
 
-    fetch("http://localhost:5000/get-homework")
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    fetch(`${API_BASE}/get-homework`)
       .then(res => res.json())
       .then(data => {
         setHomeworkData(data);
@@ -39,7 +40,8 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/login-parent", {
+      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+      const res = await fetch(`${API_BASE}/login-parent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -132,7 +134,10 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
             />
           </div>
 
-          <button type="submit" className="role-btn">Login</button>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '20px' }}>
+            <button type="submit" className="role-btn" style={{ flex: 1, maxWidth: '150px' }}>Login</button>
+            <button type="button" onClick={() => setPage('role')} className="role-btn" style={{ flex: 1, maxWidth: '150px' }}>Cancel</button>
+          </div>
 
           {loginMessage && (
             <p style={{ color: 'red', marginTop: '10px' }}>
@@ -149,13 +154,19 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
   return (
     <div className="container" style={{ paddingTop: '4rem' }}>
 
-      <div className="header">
-        <h1>Parent Dashboard</h1>
-        <p>
-          {session.parentName} | {session.parentPhone}
-        </p>
-
-        <button onClick={handleLogoutClick}>Logout</button>
+      <div className="header" style={{ backgroundColor: '#fafbfc', border: '1px solid #e8ebee', borderRadius: '8px', padding: '16px', marginBottom: '24px', position: 'relative' }}>
+        <button onClick={handleLogoutClick} className="logout-btn" style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#666' }}>⏻</button>
+        <div>
+          <div className="title-container">
+            <h1 className="title" style={{ marginBottom: '8px', color: 'black' }}>Parent Dashboard</h1><br/>
+          </div>
+          <p style={{ fontSize: '14px', color: '#444' }}>
+            Name: <strong>{session.parentName}</strong>
+          </p>
+          <p style={{ fontSize: '14px', color: '#444' }}>
+            Phone: <strong>{session.parentPhone}</strong> | Email: <strong>{session.parentEmail}</strong>
+          </p>
+        </div>
       </div>
 
       <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -165,7 +176,7 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
       </div>
 
       {/* Select Child */}
-      <div className="form-group">
+      <div className="form-group" style={{ maxWidth: '500px', margin: '0 auto' }}>
         <label>Select Child:</label>
         <select
           value={selectedChild}
@@ -186,7 +197,7 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
 
       {/* Select Date */}
       {selectedChild && (
-        <div className="form-group">
+        <div className="form-group" style={{ maxWidth: '500px', margin: '20px auto 0' }}>
           <label>Date:</label>
           <input
             type="date"
@@ -199,8 +210,8 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
 
       {/* Homework Display */}
       {selectedChild && (
-        <div>
-          <h2>Homework</h2>
+        <div style={{ maxWidth: '600px', margin: '30px auto' }}>
+          <h2 style={{ color: 'white', marginBottom: '20px' }}>Homework</h2>
 
           {getFilteredHomework().length > 0 ? (
             getFilteredHomework().map((hw, i) => (
@@ -211,7 +222,7 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
               </div>
             ))
           ) : (
-            <p>No homework found</p>
+            <p style={{ color: '#ccc' }}>No homework found</p>
           )}
         </div>
       )}
