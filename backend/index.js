@@ -23,10 +23,10 @@ mongoose.connect("mongodb+srv://hasini_353:hasini333@cluster0.lx6tgen.mongodb.ne
 // ✅ REGISTER TEACHER
 app.post("/register-teacher", async (req, res) => {
   try {
-    const { name, email, phone, school, password } = req.body;
+    const { name, email, phone, school, schoolAddress, password } = req.body;
 
     // Validation
-    if (!name || !email || !phone || !school || !password) {
+    if (!name || !email || !phone || !school || !schoolAddress || !password) {
       return res.status(400).json({ success: false, message: "All fields required" });
     }
 
@@ -37,7 +37,7 @@ app.post("/register-teacher", async (req, res) => {
     }
 
     // Create teacher
-    const teacher = new Teacher({ name, email, phone, school, password });
+    const teacher = new Teacher({ name, email, phone, school, schoolAddress, password });
     await teacher.save();
 
     res.json({ success: true, message: "Teacher registered successfully ✅", teacher });
@@ -75,16 +75,16 @@ app.post("/register-parent", async (req, res) => {
 // ✅ LOGIN TEACHER
 app.post("/login-teacher", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, phone, password, schoolName, schoolAddress } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: "Email and password required" });
+    if (!email || !phone || !password || !schoolName || !schoolAddress) {
+      return res.status(400).json({ success: false, message: "Email, phone, password, school name and address required" });
     }
 
-    const teacher = await Teacher.findOne({ email });
+    const teacher = await Teacher.findOne({ email, phone, school: schoolName, schoolAddress });
     
     if (!teacher) {
-      return res.json({ success: false, message: "Teacher not found" });
+      return res.json({ success: false, message: "Teacher not found for this school branch" });
     }
 
     // Simple password check (in production, use bcrypt)
@@ -95,7 +95,7 @@ app.post("/login-teacher", async (req, res) => {
     res.json({ 
       success: true, 
       message: "Login successful ✅",
-      teacher: { name: teacher.name, email: teacher.email, phone: teacher.phone, school: teacher.school }
+      teacher: { name: teacher.name, email: teacher.email, phone: teacher.phone, school: teacher.school, schoolAddress: teacher.schoolAddress }
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -136,10 +136,10 @@ app.post("/login-parent", async (req, res) => {
 // ✅ ADD HOMEWORK
 app.post("/add-homework", async (req, res) => {
   try {
-    const { class: cls, section, subject, date, text, teacher, school } = req.body;
+    const { class: cls, section, subject, date, text, teacher, school, schoolAddress } = req.body;
 
     // Validation
-    if (!cls || !section || !subject || !date || !text || !teacher || !school) {
+    if (!cls || !section || !subject || !date || !text || !teacher || !school || !schoolAddress) {
       return res.status(400).json({ message: "All fields required" });
     }
 
@@ -189,12 +189,14 @@ app.post("/add-child", async (req, res) => {
   }
 });
 
-// ✅ GET ALL SCHOOLS
+// ✅ GET ALL SCHOOL BRANCHES
 app.get("/get-schools", async (req, res) => {
   try {
     const teachers = await Teacher.find();
-    const schools = [...new Set(teachers.map(t => t.school))];
-    res.json(schools);
+    const uniqueBranches = Array.from(new Set(
+      teachers.map(t => JSON.stringify({ school: t.school, schoolAddress: t.schoolAddress }))
+    )).map(branch => JSON.parse(branch));
+    res.json(uniqueBranches);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

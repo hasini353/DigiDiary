@@ -3,6 +3,11 @@ import '../App.css';
 
 
 const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
+  const [schoolEmail, setSchoolEmail] = useState("");
+  const [schoolName, setSchoolName] = useState("");
+  const [schoolAddress, setSchoolAddress] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
@@ -26,13 +31,47 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
  const handleLoginSubmit = async (e) => {
   e.preventDefault();
 
-  onLogin({
-    schoolName: "Demo School",
-    teacherName: "Hasini",
-    teacherEmail: schoolEmail
-  });
+  if (!schoolEmail || !phoneNumber || !password || !schoolName || !schoolAddress) {
+    setUploadMessage("Please fill all login fields");
+    return;
+  }
 
-  setShowLoginForm(false);
+  try {
+    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const res = await fetch(`${API_BASE}/login-teacher`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: schoolEmail,
+        phone: phoneNumber,
+        password,
+        schoolName,
+        schoolAddress
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      onLogin({
+        schoolName: data.teacher.school,
+        schoolAddress: data.teacher.schoolAddress,
+        teacherName: data.teacher.name,
+        teacherEmail: data.teacher.email,
+        teacherPhone: data.teacher.phone
+      });
+
+      setUploadMessage("");
+      setShowLoginForm(false);
+    } else {
+      setUploadMessage(data.message || "Invalid login");
+    }
+  } catch (error) {
+    console.error(error);
+    setUploadMessage("Server error");
+  }
 };
 
   const handleHomeworkUpload = async (e) => {
@@ -62,7 +101,8 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
         date: selectedDate,
         text: homeworkText,
         teacher: session.teacherName,
-        school: session.schoolName
+        school: session.schoolName,
+        schoolAddress: session.schoolAddress
       })
     });
 
@@ -84,15 +124,15 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
 
   const handleLogoutClick = () => {
     setShowLoginForm(true);
-    setSelectedSchool("");
     setSchoolEmail("");
+    setSchoolName("");
+    setSchoolAddress("");
     setPhoneNumber("");
     setPassword("");
     setSelectedClass("");
     setSelectedSection("");
     setSelectedSubject("");
     setSelectedDate("");
-    setHomeworkFile(null);
     setHomeworkText("");
     setUploadMessage("");
     onLogout();
@@ -112,6 +152,30 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
               placeholder="Enter your school email"
               value={schoolEmail}
               onChange={(e) => setSchoolEmail(e.target.value)}
+              className="form-input"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>School Name:</label>
+            <input
+              type="text"
+              placeholder="Enter school name"
+              value={schoolName}
+              onChange={(e) => setSchoolName(e.target.value)}
+              className="form-input"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>School Address:</label>
+            <input
+              type="text"
+              placeholder="Enter school address or branch"
+              value={schoolAddress}
+              onChange={(e) => setSchoolAddress(e.target.value)}
               className="form-input"
               required
             />
@@ -161,7 +225,10 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
             <h1 className="title" style={{ marginBottom: '8px' ,color: 'black'}}>Teacher Dashboard</h1><br/>
           </div>
           <p style={{ fontSize: '14px', color: '#444' }}>
-            School: <strong>{session.schoolName}</strong> 
+            School: <strong>{session.schoolName}</strong>
+          </p>
+          <p style={{ fontSize: '14px', color: '#444' }}>
+            Branch/Address: <strong>{session.schoolAddress}</strong>
           </p>
           <p style={{ fontSize: '14px', color: '#444' }}>
             Teacher: <strong>{session.teacherName}</strong> | Email: <strong>{session.teacherEmail}</strong>

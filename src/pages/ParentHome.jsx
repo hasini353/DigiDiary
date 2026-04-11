@@ -92,6 +92,7 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
     const parts = selectedChild.split(" - ");
     const classSection = parts[1].replace("Class ", "");
     const school = parts[2];
+    const schoolAddress = parts[3] || "";
 
     const cls = classSection.slice(0, -1);
     const sec = classSection.slice(-1);
@@ -100,6 +101,7 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
       hw.class === cls &&
       hw.section === sec &&
       hw.school === school &&
+      hw.schoolAddress === schoolAddress &&
       hw.date === searchDate
     );
   };

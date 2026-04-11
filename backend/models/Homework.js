@@ -7,7 +7,8 @@ const homeworkSchema = new mongoose.Schema({
   date: String,
   text: String,
   teacher: String,
-  school: String
+  school: String,
+  schoolAddress: String
 });
 
 module.exports = mongoose.model("Homework", homeworkSchema);

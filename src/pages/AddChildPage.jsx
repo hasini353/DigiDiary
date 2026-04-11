@@ -3,7 +3,7 @@ import '../App.css';
 
 const AddChildPage = ({ session, onLogin, setPage }) => {
   const [childName, setChildName] = useState('');
-  const [schoolName, setSchoolName] = useState('');
+  const [schoolBranch, setSchoolBranch] = useState('');
   const [childClass, setChildClass] = useState('');
   const [childSection, setChildSection] = useState('');
   const [message, setMessage] = useState('');
@@ -28,12 +28,13 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!childName || !schoolName || !childClass || !childSection) {
+    if (!childName || !schoolBranch || !childClass || !childSection) {
       setMessage('Please fill all fields');
       return;
     }
 
-    const newChild = `${childName} - Class ${childClass}${childSection} - ${schoolName}`;
+    const selectedSchool = JSON.parse(schoolBranch);
+    const newChild = `${childName} - Class ${childClass}${childSection} - ${selectedSchool.school} - ${selectedSchool.schoolAddress}`;
 
     try {
       const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -95,21 +96,21 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
         </div>
 
         <div className="form-group">
-          <label>School Name:</label>
+          <label>School Branch:</label>
           <select
-            value={schoolName}
-            onChange={(e) => setSchoolName(e.target.value)}
+            value={schoolBranch}
+            onChange={(e) => setSchoolBranch(e.target.value)}
             className="form-input"
             required
           >
-            <option value="">-- Select School --</option>
+            <option value="">-- Select School Branch --</option>
 
             {schools.length === 0 ? (
-              <option disabled>No schools available</option>
+              <option disabled>No school branches available</option>
             ) : (
               schools.map((school, i) => (
-                <option key={i} value={school}>
-                  {school}
+                <option key={i} value={JSON.stringify(school)}>
+                  {school.school} - {school.schoolAddress}
                 </option>
               ))
             )}

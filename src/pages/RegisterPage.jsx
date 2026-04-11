@@ -5,6 +5,7 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
   const [fullName, setFullName] = useState('');
   const [schoolEmail, setSchoolEmail] = useState('');
   const [schoolName, setSchoolName] = useState('');
+  const [schoolAddress, setSchoolAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -14,7 +15,7 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!fullName || !phoneNumber || !password || (isTeacher && (!schoolEmail || !schoolName))) {
+    if (!fullName || !phoneNumber || !password || (isTeacher && (!schoolEmail || !schoolName || !schoolAddress))) {
       setError('Please fill all required fields.');
       return;
     }
@@ -36,6 +37,7 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
           email: schoolEmail,
           phone: phoneNumber,
           school: schoolName, // only for teacher
+          schoolAddress: schoolAddress,
           password: password
         })
       });
@@ -47,6 +49,7 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
         const sessionData = isTeacher
           ? {
               schoolName,
+              schoolAddress,
               teacherName: fullName,
               teacherEmail: schoolEmail,
               teacherPhone: phoneNumber
@@ -101,16 +104,29 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
         </div>
 
         {isTeacher && (
-          <div className="form-group">
-            <label>School Name:</label>
-            <input
-              type="text"
-              value={schoolName}
-              onChange={(e) => setSchoolName(e.target.value)}
-              className="form-input"
-              required
-            />
-          </div>
+          <>
+            <div className="form-group">
+              <label>School Name:</label>
+              <input
+                type="text"
+                value={schoolName}
+                onChange={(e) => setSchoolName(e.target.value)}
+                className="form-input"
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label>School Address:</label>
+              <input
+                type="text"
+                value={schoolAddress}
+                onChange={(e) => setSchoolAddress(e.target.value)}
+                className="form-input"
+                required
+              />
+            </div>
+          </>
         )}
 
         <div className="form-group">
