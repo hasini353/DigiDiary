@@ -8,12 +8,24 @@ import AddChildPage from './pages/AddChildPage';
 const App = () => {
   const [page, setPage] = useState("role");
   const [teacherSession, setTeacherSession] = useState(() => {
-    const saved = localStorage.getItem('teacherSession');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('teacherSession');
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('Error parsing teacherSession from localStorage:', error);
+      localStorage.removeItem('teacherSession'); // Clear invalid data
+      return null;
+    }
   });
   const [parentSession, setParentSession] = useState(() => {
-    const saved = localStorage.getItem('parentSession');
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem('parentSession');
+      return saved ? JSON.parse(saved) : null;
+    } catch (error) {
+      console.error('Error parsing parentSession from localStorage:', error);
+      localStorage.removeItem('parentSession'); // Clear invalid data
+      return null;
+    }
   });
 
   const handleTeacherLogout = () => {
