@@ -6,7 +6,7 @@ const Teacher = require("./models/Teacher");
 const Parent = require("./models/Parent");
 const app = express();
 const PORT = process.env.PORT || 5000;
-require("dotenv").config();
+//require("dotenv").config();
 
 
 // Middleware
