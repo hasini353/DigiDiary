@@ -12,6 +12,11 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+
+  "engines": {
+  "node": ">=20"
+},
+
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -19,4 +24,5 @@
     "mongodb": "^7.1.1",
     "mongoose": "^9.4.1"
   }
+  
 }
