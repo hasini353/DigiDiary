@@ -5,6 +5,9 @@ const Homework = require("./models/Homework");
 const Teacher = require("./models/Teacher");
 const Parent = require("./models/Parent");
 const app = express();
+const PORT = process.env.PORT || 5000;
+require("dotenv").config();
+
 
 // Middleware
 app.use(cors());
@@ -16,7 +19,7 @@ app.get("/", (req, res) => {
 });
 
 // MongoDB Connection
-mongoose.connect("mongodb+srv://hasini_353:hasini333@cluster0.lx6tgen.mongodb.net/digidiary?appName=Cluster0")
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))
   .catch(err => console.log("MongoDB Error:", err));
 
@@ -206,7 +209,7 @@ app.get("/get-schools", async (req, res) => {
 });
 
 // Start server
-app.listen(5000, () => {
-  console.log("Server running on port 5000 ✅");
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} ✅`);
 });
 
