@@ -31,7 +31,7 @@ app.post("/register-teacher", async (req, res) => {
     }
 
     // Check if teacher exists
-    const existingTeacher = await Teacher.findOne({ $or: [{ email }, { phone }] });
+    const existingTeacher = await Teacher.findOne({ $or: [{ email: email.toLowerCase() }, { phone }] });
     if (existingTeacher) {
       return res.status(400).json({ success: false, message: "Teacher already exists" });
     }
@@ -42,6 +42,7 @@ app.post("/register-teacher", async (req, res) => {
 
     res.json({ success: true, message: "Teacher registered successfully ✅", teacher });
   } catch (err) {
+    console.error("Error registering teacher:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -57,7 +58,8 @@ app.post("/register-parent", async (req, res) => {
     }
 
     // Check if parent exists
-    const existingParent = await Parent.findOne({ $or: [{ email }, { phone }] });
+    const query = email ? { $or: [{ email: email.toLowerCase() }, { phone }] } : { phone };
+    const existingParent = await Parent.findOne(query);
     if (existingParent) {
       return res.status(400).json({ success: false, message: "Parent already exists" });
     }
@@ -68,6 +70,7 @@ app.post("/register-parent", async (req, res) => {
 
     res.json({ success: true, message: "Parent registered successfully ✅", parent });
   } catch (err) {
+    console.error("Error registering parent:", err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
