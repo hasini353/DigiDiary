@@ -6,15 +6,19 @@ const Teacher = require("./models/Teacher");
 const Parent = require("./models/Parent");
 const app = express();
 const PORT = process.env.PORT || 5000;
-//require("dotenv").config();
+require("dotenv").config();
 
 
 // Middleware
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type"]
-}));
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : '*',
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
 
@@ -24,8 +28,9 @@ app.get("/", (req, res) => {
 });
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected ✅"))
+const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/digidiary";
+mongoose.connect(mongoUri)
+  .then(() => console.log("MongoDB Connected ✅", mongoUri))
   .catch(err => console.log("MongoDB Error:", err));
 
 // ✅ REGISTER TEACHER
