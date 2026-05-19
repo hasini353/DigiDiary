@@ -20,8 +20,8 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
   useEffect(() => {
     if (!session) return;
 
-    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    fetch(`${API_BASE}/get-homework`)
+    const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+    fetch(`${API_BASE}/api/get-homework`)
       .then(res => res.json())
       .then(data => {
         setHomeworkData(data);
@@ -40,8 +40,8 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
     }
 
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const res = await fetch(`${API_BASE}/login-parent`, {
+      const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+      const res = await fetch(`${API_BASE}/api/login-parent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

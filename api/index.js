@@ -23,18 +23,20 @@ app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Test route
-app.get("/", (req, res) => {
+app.get("/api/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
 // MongoDB Connection
 const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/digidiary";
-mongoose.connect(mongoUri)
-  .then(() => console.log("MongoDB Connected ✅", mongoUri))
-  .catch(err => console.log("MongoDB Error:", err));
+if (!mongoose.connection.readyState) {
+  mongoose.connect(mongoUri)
+    .then(() => console.log("MongoDB Connected ✅", mongoUri))
+    .catch(err => console.log("MongoDB Error:", err));
+}
 
 // ✅ REGISTER TEACHER
-app.post("/register-teacher", async (req, res) => {
+app.post("/api/register-teacher", async (req, res) => {
   try {
     const { name, email, phone, school, schoolAddress, password } = req.body;
 
@@ -61,7 +63,7 @@ app.post("/register-teacher", async (req, res) => {
 });
 
 // ✅ REGISTER PARENT
-app.post("/register-parent", async (req, res) => {
+app.post("/api/register-parent", async (req, res) => {
   try {
     const { name, email, phone, password } = req.body;
 
@@ -89,7 +91,7 @@ app.post("/register-parent", async (req, res) => {
 });
 
 // ✅ LOGIN TEACHER
-app.post("/login-teacher", async (req, res) => {
+app.post("/api/login-teacher", async (req, res) => {
   try {
     const { email, phone, password, schoolName, schoolAddress } = req.body;
 
@@ -119,7 +121,7 @@ app.post("/login-teacher", async (req, res) => {
 });
 
 // ✅ LOGIN PARENT
-app.post("/login-parent", async (req, res) => {
+app.post("/api/login-parent", async (req, res) => {
   try {
     const { identifier, password } = req.body;
 
@@ -150,7 +152,7 @@ app.post("/login-parent", async (req, res) => {
 });
 
 // ✅ ADD HOMEWORK
-app.post("/add-homework", async (req, res) => {
+app.post("/api/add-homework", async (req, res) => {
   try {
     const { class: cls, section, subject, date, text, teacher, school, schoolAddress } = req.body;
 
@@ -168,7 +170,7 @@ app.post("/add-homework", async (req, res) => {
 });
 
 // ✅ GET ALL HOMEWORK
-app.get("/get-homework", async (req, res) => {
+app.get("/api/get-homework", async (req, res) => {
   try {
     const data = await Homework.find();
     res.json(data);
@@ -178,7 +180,7 @@ app.get("/get-homework", async (req, res) => {
 });
 
 // ✅ ADD CHILD TO PARENT
-app.post("/add-child", async (req, res) => {
+app.post("/api/add-child", async (req, res) => {
   try {
     const { parentPhone, child } = req.body;
 
@@ -206,7 +208,7 @@ app.post("/add-child", async (req, res) => {
 });
 
 // ✅ GET ALL SCHOOL BRANCHES
-app.get("/get-schools", async (req, res) => {
+app.get("/api/get-schools", async (req, res) => {
   try {
     const teachers = await Teacher.find();
     const uniqueBranches = Array.from(new Set(
@@ -218,8 +220,12 @@ app.get("/get-schools", async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} ✅`);
-});
+// Start server (for local dev)
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} ✅`);
+  });
+}
+
+module.exports = app;
 

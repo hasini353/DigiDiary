@@ -15,8 +15,8 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
 
   // ✅ Fetch schools from backend
   useEffect(() => {
-    const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    fetch(`${API_BASE}/get-schools`)
+    const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+    fetch(`${API_BASE}/api/get-schools`)
       .then(res => res.json())
       .then(data => {
         setSchools(data);
@@ -37,8 +37,8 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
     const newChild = `${childName} - Class ${childClass}${childSection} - ${selectedSchool.school} - ${selectedSchool.schoolAddress}`;
 
     try {
-      const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
-      const res = await fetch(`${API_BASE}/add-child`, {
+      const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+      const res = await fetch(`${API_BASE}/api/add-child`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
