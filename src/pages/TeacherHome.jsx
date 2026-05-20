@@ -37,7 +37,7 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
   }
 
   try {
-    const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+    const API_BASE = "";
     const res = await fetch(`${API_BASE}/api/login-teacher`, {
       method: "POST",
       headers: {
@@ -88,7 +88,7 @@ const TeacherHome = ({ session, onLogin, onLogout, setPage }) => {
   }
 
   try {
-    const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+    const API_BASE = "";
     const response = await fetch(`${API_BASE}/api/add-homework`, {
       method: "POST",
       headers: {

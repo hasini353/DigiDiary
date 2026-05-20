@@ -15,7 +15,7 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
 
   // ✅ Fetch schools from backend
   useEffect(() => {
-    const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+    const API_BASE = "";
     fetch(`${API_BASE}/api/get-schools`)
       .then(res => res.json())
       .then(data => {
@@ -37,7 +37,7 @@ const AddChildPage = ({ session, onLogin, setPage }) => {
     const newChild = `${childName} - Class ${childClass}${childSection} - ${selectedSchool.school} - ${selectedSchool.schoolAddress}`;
 
     try {
-      const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+      const API_BASE = "";
       const res = await fetch(`${API_BASE}/api/add-child`, {
         method: "POST",
         headers: {

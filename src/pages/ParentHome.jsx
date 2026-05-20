@@ -20,7 +20,7 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
   useEffect(() => {
     if (!session) return;
 
-    const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+    const API_BASE = "";
     fetch(`${API_BASE}/api/get-homework`)
       .then(res => res.json())
       .then(data => {
@@ -40,7 +40,7 @@ const ParentHome = ({ session, onLogin, onLogout, setPage }) => {
     }
 
     try {
-      const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+      const API_BASE = "";
       const res = await fetch(`${API_BASE}/api/login-parent`, {
         method: "POST",
         headers: {

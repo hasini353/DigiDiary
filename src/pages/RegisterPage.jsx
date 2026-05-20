@@ -22,7 +22,7 @@ const RegisterPage = ({ role, onRegister, onCancel }) => {
 
     try {
       // ✅ Choose API based on role
-      const API_BASE = import.meta.env.PROD ? "" : "http://localhost:5000";
+      const API_BASE = "";
       const url = isTeacher
         ? `${API_BASE}/api/register-teacher`
         : `${API_BASE}/api/register-parent`;
