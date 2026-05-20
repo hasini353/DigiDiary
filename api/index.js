@@ -11,7 +11,7 @@ require("dotenv").config();
 
 // Middleware
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : true,
+  origin: true, // Always allow all origins to fix CORS on Vercel preview links
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
