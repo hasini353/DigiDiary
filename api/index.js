@@ -29,11 +29,24 @@ app.get("/api/", (req, res) => {
 
 // MongoDB Connection
 const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/digidiary";
-if (!mongoose.connection.readyState) {
-  mongoose.connect(mongoUri)
-    .then(() => console.log("MongoDB Connected ✅", mongoUri))
-    .catch(err => console.log("MongoDB Error:", err));
-}
+
+let isConnected = false;
+const connectDB = async () => {
+  if (isConnected) return;
+  try {
+    const db = await mongoose.connect(mongoUri);
+    isConnected = db.connections[0].readyState === 1;
+    console.log("MongoDB Connected ✅");
+  } catch (err) {
+    console.error("MongoDB Error:", err);
+  }
+};
+
+// Ensure DB is connected before handling any request
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
 
 // ✅ REGISTER TEACHER
 app.post("/api/register-teacher", async (req, res) => {
