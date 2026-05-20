@@ -33,7 +33,9 @@ const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/digidiary";
 let isConnected = false;
 const connectDB = async () => {
   if (isConnected) return;
-  const db = await mongoose.connect(mongoUri);
+  const db = await mongoose.connect(mongoUri, {
+    serverSelectionTimeoutMS: 4000 // Fail fast if IP is blocked
+  });
   isConnected = db.connections[0].readyState === 1;
   console.log("MongoDB Connected ✅");
 };
