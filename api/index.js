@@ -33,19 +33,20 @@ const mongoUri = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/digidiary";
 let isConnected = false;
 const connectDB = async () => {
   if (isConnected) return;
-  try {
-    const db = await mongoose.connect(mongoUri);
-    isConnected = db.connections[0].readyState === 1;
-    console.log("MongoDB Connected ✅");
-  } catch (err) {
-    console.error("MongoDB Error:", err);
-  }
+  const db = await mongoose.connect(mongoUri);
+  isConnected = db.connections[0].readyState === 1;
+  console.log("MongoDB Connected ✅");
 };
 
 // Ensure DB is connected before handling any request
 app.use(async (req, res, next) => {
-  await connectDB();
-  next();
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    res.status(500).json({ success: false, message: "Database connection failed. Please check MongoDB configuration." });
+  }
 });
 
 // ✅ REGISTER TEACHER
